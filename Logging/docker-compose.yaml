@@ -1,0 +1,50 @@
+#version: '3.8'
+services:
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.11.1
+    container_name: filebeat
+    user: root
+    volumes:
+      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - /home/rusok/Descargas/microservicios/logs_orden:/host-logs-orden:ro
+      - /home/rusok/Descargas/microservicios/logs_producto:/host-logs-producto:ro
+    depends_on:
+      - logstash
+    mem_limit: 128m
+    cpus: 0.25
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.11.1
+    container_name: logstash
+    ports:
+      - "5044:5044"
+      - "9600:9600"
+    environment:
+      - LS_JAVA_OPTS=-Xms256m -Xmx256m
+    volumes:
+      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    mem_limit: 512m
+    cpus: 0.25
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.1
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - "9200:9200"
+    volumes:
+      - midata:/usr/share/elasticsearch/data
+    mem_limit: 1g
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.1
+    container_name: kibana
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - NODE_OPTIONS=--max-old-space-size=256
+    mem_limit: 512m
+    cpus: 0.25
+volumes:
+  midata:

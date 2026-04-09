@@ -1,0 +1,14 @@
+syntax="proto3";
+option java_package="com.pepe.inventario.grpc";
+option java_multiple_files=true;
+service InventarioService{
+  rpc GetStock (StockRequest) returns (StockResponse);
+}
+
+message StockRequest{
+  int64 productoId=1;
+}
+
+message StockResponse{
+  int64 cantidad=1;
+}

@@ -1,0 +1,94 @@
+#version: '3.8'
+services:
+  servidor-eureka:
+    build:
+      context: .
+      dockerfile: eureka-api-gateway/Dockerfile
+      args:
+        SERVICE_NAME: eureka-api-gateway
+    ports:
+      - "8761:8761"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - JAVA_TOOL_OPTIONS=-Xms256m -Xmx384m
+    mem_limit: 512m
+    cpus: 0.25
+    networks:
+      - sbanet
+  servidor-config:
+    build:
+      context: .
+      dockerfile: servidor-config/Dockerfile
+      args:
+        SERVICE_NAME: servidor-config
+    ports:
+      - "8888:8888"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - JAVA_TOOL_OPTIONS=-Xms256m -Xmx384m
+    mem_limit: 512m
+    cpus: 0.25
+    networks:
+      - sbanet
+    depends_on:
+      - servidor-eureka
+  producto-service:
+    build:
+      context: .
+      dockerfile: producto-service/Dockerfile
+      args:
+        SERVICE_NAME: producto-service
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - JAVA_TOOL_OPTIONS=-Xms256m -Xmx384m
+    mem_limit: 512m
+    cpus: 0.25
+    networks:
+      - sbanet
+    depends_on:
+      - servidor-eureka
+      - servidor-config
+  orden-service:
+    build:
+      context: .
+      dockerfile: orden-service/Dockerfile
+      args:
+        SERVICE_NAME: orden-service
+    ports:
+      - "8084:8084"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - JAVA_TOOL_OPTIONS=-Xms256m -Xmx384m
+    mem_limit: 512m
+    cpus: 0.25
+    networks:
+      - sbanet
+    depends_on:
+      - servidor-eureka
+      - servidor-config
+      - producto-service
+  inventario-service:
+    build:
+      context: .
+      dockerfile: inventario-service/Dockerfile
+      args:
+        SERVICE_NAME: inventario-service
+    ports:
+      - "8085:8085"
+      - "9009:9009"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - JAVA_TOOL_OPTIONS=-Xms256m -Xmx384m
+    mem_limit: 512m
+    cpus: 0.25
+    networks:
+      - sbanet
+    depends_on:
+      - servidor-eureka
+      - servidor-config
+networks:
+  sbanet:
+    external: true
+
