@@ -8,6 +8,7 @@ services:
       - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
       - /home/rusok/Descargas/microservicios/logs_orden:/host-logs-orden:ro
       - /home/rusok/Descargas/microservicios/logs_producto:/host-logs-producto:ro
+      - /home/rusok/Descargas/microservicios/logs_inventario:/host-logs-inventario:ro
     depends_on:
       - logstash
     mem_limit: 128m
